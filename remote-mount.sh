@@ -2,25 +2,31 @@
 
 checkForHelp() {
   if [[ -z "$1" ]]; then
-    help()
+    showHelp
+    exit 1
   elif [[ -z "$2" ]]; then
-    help()
+    showHelp
+    exit 1
   elif [[ -z "$3" ]]; then
-    help()
+    showHelp
+    exit 1
   elif [[ -z "$4" ]]; then
-    help()
+    showHelp
+    exit 1
   elif [[ "$1" == "-h" ]]; then
-    help()
+    showHelp
+    exit 1
   elif [[ "$1" == "--help" ]]; then
-    help()
+    showHelp
+    exit 1
   fi
 }
 
 
 
-help() {
-  echo "Usage: $0 <ip/path> <local_path>"
-  echo -e "\t ex: $0 192.168.0.2/c /mnt/remote_c_drive"
+showHelp() {
+  echo "Usage: $0 <ip/path> <local_path> <rem_user> <rem_pass>"
+  echo -e "\t ex: $0 192.168.0.2/c /mnt/remote_c_drive someUser somePass"
 }
 
 
@@ -35,5 +41,5 @@ main() {
   -o username=$rem_user,password=$rem_pass,vers=3.0
 }
 
-checkForHelp
-main
+checkForHelp $@
+main $@
