@@ -1,35 +1,35 @@
 #!/bin/bash
 
-###################################################################################################
-
-source "$HOME/00-manual/scripts/lib/constants"
-source "$LIB/help"
-checkForHelp "$1" "file_quantity"
-checkForHelp "$1" "total"
-checkForHelp "$1" "total" "dir"
-checkForProperArgCount 1 $@
-
-###################################################################################################
 
 main() {
-  if [[ "$1" == "total" ]] || [[ "$1" == "all" ]]; then
+  if [[ ! "$1" ]]; then
+    helpAndExit
+  elif [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]]; then
+    helpAndExit
+
+  elif [[ "$1" == "total" ]] || [[ "$1" == "all" ]]; then
     if [[ -n "$2" ]]; then
       showCombinedFileSizesInDir "$2"
     else
       showCombinedFileSizesInDir "."
     fi
+
   elif [[ $1 =~ ^[0-9]+$ ]]; then
     if [[ -n "$2" ]]; then
       showLargestNFilesInDir "$1" "$2"
     else
       showLargestNFilesInDir "$1" "."
     fi
+
   else
-    showAllHelpOptions "$0"
-    exit 1
+    helpAndExit
   fi
 }
 
+helpAndExit() {
+  echo "Usage: $0 <all|#>"
+  exit 1
+}
 
 showCombinedFileSizesInDir() {
   du -sh "$1"
@@ -42,13 +42,6 @@ showLargestNFilesInDir() {
   find "$2" -type f -exec du -h {} + 2>/dev/null | sort -rh | head -n "$FILE_QUANTITY" | GREP_COLORS="mt=1;33" grep --color="always" "^.*M\s" | tac
   echo " "
   find "$2" -type f -exec du -h {} + 2>/dev/null | sort -rh | head -n "$FILE_QUANTITY" | GREP_COLORS="mt=1;31" grep --color="always" "^.*G\s" | tac
-}
-
-showAllHelpOptions() {
-  showHelp "$1" "file_quantity"
-  showHelp "$1" "file_quantity" "dir"
-  showHelp "$1" "\"total\""
-  showHelp "$1" "\"total\"" "dir"
 }
 
 main "$@"
