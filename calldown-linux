@@ -1,0 +1,81 @@
+#!/bin/bash
+
+
+
+prepDir() {
+  dir="$HOME/00-manual"
+  mkdir -p "$dir"
+  cd "$dir"
+}
+
+
+
+checkForHelp() {
+  if [[ "$1" == "-h" || "$1" == "--help"  ]]; then
+    showHelp
+    exit 1
+  fi
+}
+
+
+
+showHelp() {
+  echo "Usage: $0"
+  echo "Ex: $0"
+}
+
+
+
+installWgetIfNeeded() {
+  which wget
+  if [[ ! $? -eq 0 ]]; then
+    pkm="command -v apt || command -v dnf || command -v yum || command -v pacman || command -v zypper || command -v apk || command -v brew"
+    $pkm install -y wget
+  fi
+}
+
+
+
+pullFiles() {
+  wget -r -np -nH --cut-dirs=0 --reject "index.html*" --no-parent http://clmerritt.com/
+}
+
+
+
+makeBinsExecutable() {
+  chmod -R +x $HOME/00-manual/scripts
+  chmod -R +x $HOME/00-manual/packages
+}
+
+
+
+cleanupIndexFiles() {
+  index_files="$(find . -name "index.html" | grep -v .git)"
+  for file in $index_files; do
+    rm -rf $file
+  done
+}
+
+
+
+copySysfiles() {
+  cp -f $HOME/00-manual/zz-misc/sys-files/.vimrc $HOME/.vimrc
+  cp -f $HOME/00-manual/zz-misc/sys-files/.bashrc $HOME/.bashrc
+}
+
+
+
+main() {
+  prepDir
+  installWgetIfNeeded
+  pullFiles
+  makeBinsExecutable
+  cleanupIndexFiles
+  copySysfiles
+}
+
+
+
+checkForHelp $@
+main $@
+

@@ -1,0 +1,7 @@
+#!/bin/bash
+
+for i in {0..255}; do
+  ansi_code="\033[38;5;${i}m"
+  printf "%b%s\e[0m\n" "$ansi_code" "$ansi_code"
+done
+
