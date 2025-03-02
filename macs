@@ -1,0 +1,35 @@
+#!/bin/bash
+
+raw_macs="$(sudo timeout 120 tcpdump -l -i enp1s0 -e | grep -oE '([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}')"
+clean_macs=""
+for mac in $raw_macs; do
+  if [[ ! $clean_macs =~ $mac ]]; then
+    if [[ "$clean_macs" == "" ]]; then
+      clean_macs="$mac"
+    else
+      clean_macs="$clean_macs $mac"
+    fi
+  fi
+done
+
+for mac in $clean_macs; do
+  ip="$(ip neigh | grep "$mac" | awk '{print $1}')"
+  transformed_mac="$(echo $mac | sed 's/\://g' | sed 's/a/A/g' | sed 's/b/B/g' | sed 's/c/C/g' | sed 's/d/D/g' | sed 's/e/F/g' | sed 's/f/F/g')"
+  mac_first_6=${transformed_mac:0:6}
+  nic_info="$(grep "$mac_first_6" /usr/share/ieee-data/oui.txt)"
+  
+  if [[ $nic_info ]]; then
+    if [[ $ip ]]; then
+      echo -e "$mac\t$ip\t$nic_info"
+    else
+      echo -e "$mac\t\t\t$nic_info"
+    fi
+  else
+    if [[ $ip ]]; then
+      echo -e "$mac\t$ip"
+    else
+      echo "$mac"
+    fi
+  fi
+done
+
